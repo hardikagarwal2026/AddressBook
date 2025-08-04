@@ -8,6 +8,7 @@ import(
 	"strings"
 	"addressbook/models"
 	"addressbook/storage"
+	"addressbook/utils"
 )
 
 //http.Responsewriter , response ko apne hisab se control krne deta hai
@@ -24,18 +25,18 @@ func GetcontactsHandler(w http.ResponseWriter, r *http.Request){
 
 func CreateContactHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		utils.WriteJSONError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var newContact models.Contact
 	err := json.NewDecoder(r.Body).Decode(&newContact)
 	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		utils.WriteJSONError(w, "Invalid JSON", http.StatusBadRequest)
 	}
 
 	if newContact.Name == "" || newContact.Email == "" {
-		http.Error(w, "Name and Email Required", http.StatusBadRequest)
+		utils.WriteJSONError(w, "Name and Email Required", http.StatusBadRequest)
 		return
 	}
 
@@ -50,20 +51,20 @@ func CreateContactHandler(w http.ResponseWriter, r *http.Request){
 
 func GetContactByIDHandler(w http.ResponseWriter,r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		utils.WriteJSONError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 3 {
-		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		utils.WriteJSONError(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
 
 	idStr := parts[2]
 	id, err := strconv.Atoi(idStr)
 	if err != nil{
-		http.Error(w, "ID must be a number", http.StatusBadRequest)
+		utils.WriteJSONError(w, "ID must be a number", http.StatusBadRequest)
 	}
 
 	for _, c := range storage.Contacts {
@@ -74,38 +75,38 @@ func GetContactByIDHandler(w http.ResponseWriter,r *http.Request) {
 		}
 	}
 
-	http.Error(w, "Contact not found", http.StatusNotFound)
+	utils.WriteJSONError(w, "Contact not found", http.StatusNotFound)
 }
 
 
 func UpdateContactHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method != http.MethodPut {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		utils.WriteJSONError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 3 {
-		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		utils.WriteJSONError(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
 
 	idStr := parts[2]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "ID must be a number", http.StatusBadRequest)
+		utils.WriteJSONError(w, "ID must be a number", http.StatusBadRequest)
 		return
 	}
 
 	var updatedContact models.Contact
 	err = json.NewDecoder(r.Body).Decode(&updatedContact)
 	if err != nil {
-        http.Error(w, "Invalid JSON", http.StatusBadRequest)
+        utils.WriteJSONError(w, "Invalid JSON", http.StatusBadRequest)
         return
     }
 
 	if updatedContact.Name == "" || updatedContact.Email == "" {
-        http.Error(w, "Name and Email are required", http.StatusBadRequest)
+        utils.WriteJSONError(w, "Name and Email are required", http.StatusBadRequest)
         return
     }
 
@@ -120,26 +121,26 @@ func UpdateContactHandler(w http.ResponseWriter, r *http.Request){
 		}
 	}
 
-	http.Error(w, "Contact not found", http.StatusNotFound)
+	utils.WriteJSONError(w, "Contact not found", http.StatusNotFound)
 }
 
 
 func DeleteContactHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method != http.MethodDelete{
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		utils.WriteJSONError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 3 {
-		http.Error(w, "Invalid URL Format", http.StatusBadRequest)
+		utils.WriteJSONError(w, "Invalid URL Format", http.StatusBadRequest)
 		return
 	}
 
 	idStr := parts[2]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "ID must be integer", http.StatusBadRequest)
+		utils.WriteJSONError(w, "ID must be integer", http.StatusBadRequest)
 		return
 	}
 
@@ -151,8 +152,30 @@ func DeleteContactHandler(w http.ResponseWriter, r *http.Request){
 		}
 	}
 
-	http.Error(w, "No Contact Found", http.StatusNotFound)
+	utils.WriteJSONError(w, "No Contact Found", http.StatusNotFound)
 
 }
 
+func SearchContactHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.WriteJSONError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		utils.WriteJSONError(w, "Query paramater q required", http.StatusBadRequest)
+	}
+
+	query = strings.ToLower(query)
+	var results []models.Contact
+	for _, c := range storage.Contacts {
+		if strings.Contains(strings.ToLower(c.Name), query) || strings.Contains(strings.ToLower(c.Email), query) || strings.Contains(strings.ToLower(c.Phone), query) {
+			results = append(results, c)
+		}
+	}
+
+	w.Header().Set("Content-Typr", "application/json")
+	json.NewEncoder(w).Encode(results)
+}
 

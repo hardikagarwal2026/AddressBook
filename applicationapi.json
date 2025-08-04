@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "Address Book API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Contacts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/contacts",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["contacts"]
+        }
+      }
+    },
+    {
+      "name": "Create Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"phone\": \"1234567890\",\n  \"address\": \"Some Address\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/contacts",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["contacts"]
+        }
+      }
+    },
+    {
+      "name": "Get Contact by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/contacts/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["contacts", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Contact",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated User\",\n  \"email\": \"updateduser@example.com\",\n  \"phone\": \"0987654321\",\n  \"address\": \"New Address\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/contacts/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["contacts", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Contact",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/contacts/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["contacts", "1"]
+        }
+      }
+    }
+  ]
+}

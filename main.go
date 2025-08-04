@@ -36,13 +36,18 @@ func main(){
 		}
 	})
 
+	http.HandleFunc("/contacts/search", handlers.SearchContactHandler)
+
 	fmt.Println("Server satarting on:8080")
 
 	// syntax - http.ListenAndServe(addr string, handler http.Handler) error
 	// it takes the address and port to listen on, and http.handler ususally nil, uses defaultservermux registered via http.HandleFunc or http.Handle
 	// hindi mae bolu to , http server port 8080 pr chla dega
 	// nil matlab default multiplexer, go ka default router
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	handler1 := handlers.MiddlewareLogger(http.DefaultServeMux)
+	handler2 := handlers.MiddlewareCORS(handler1)
+	log.Fatal(http.ListenAndServe(":8080", handler2))
 
 }
 
