@@ -12,6 +12,8 @@ func main(){
 	//syntax - http.HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
 	//ye basically hellohandler ko register kr dega for all requests for "/" 
 	http.HandleFunc("/",handlers.HelloHandler) // esentially a routing of request to its handler funtions
+
+	// /contacts routes has three methods get, post aand default
 	http.HandleFunc("/contacts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet :
@@ -45,6 +47,7 @@ func main(){
 	// hindi mae bolu to , http server port 8080 pr chla dega
 	// nil matlab default multiplexer, go ka default router
 
+	//handler1 -> handler2 -> handlers
 	handler1 := handlers.MiddlewareLogger(http.DefaultServeMux)
 	handler2 := handlers.MiddlewareCORS(handler1)
 	log.Fatal(http.ListenAndServe(":8080", handler2))
